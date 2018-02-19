@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Firebase app</title>
+</head>
+<body>
+
+
+
+    <div id="app" style="display: none;">
+      <h2>Scores</h2>
+      <ul>
+        <li><strong>Instinct: </strong> <span id="instinct">...loading...</span> </li>
+        <li><strong>Mystic: </strong> <span id="mystic">...loading...</span> </li>
+        <li><strong>Valor: </strong> <span id="valor">...loading...</span> </li>
+      </ul>
+      <button id="voteForInstict">Vote</button>
+    </div>
+
+    <div id="outside">
+      <h4>hello anynom</h4>
+      <button id="loginbtn">Log in</button>
+    </div>
+
+
+  <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-database.js"></script>
+  
+  <script>
+    var config = {
+      apiKey: "AIzaSyBbo0hQt4raGMpJqsf6OuzIE9KCLSthBks",
+      authDomain: "kristinapokemon-7714f.firebaseapp.com",
+      databaseURL: "https://kristinapokemon-7714f.firebaseio.com",
+    };
+    firebase.initializeApp(config);
+
+    var db = firebase.database();
+
+    var auth = firebase.auth();
+
+    var provider = new firebase.auth.GithubAuthProvider();
+
+    document.getElementById('loginbtn').addEventListener('click', function() {
+      auth.signInWithPopup('github');
+    });
+
+     document.getElementById('loginbtn').addEventListener('click', function() {
+      auth.signOut();
+    });
+
+    console.log(auth);
+
+    auth.onAuthStateChanged(function(authData) {
+      if (authData) {
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('outside').style.display = 'none';
+        db.ref('/').on('value', function(snapshot){
+      var scores = snapshot.val();
+      ui.instinct.innerText = scores.instinct;
+      ui.mystic.innerText = scores.mystic;
+      ui.valor.innerText = scores.valor;
+    });
+      } else {
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('outside').style.display = 'block';
+      }
+      // document.getElementById('app').style.display = (authData ? 'block' : 'none');
+      console.log('AUTHDATA', authData);
+    });
+
+    var ui = {
+      instinct: document.getElementById("instinct"),
+      mystic: document.getElementById("mystic"),
+      valor: document.getElementById("valor"),
+    };
+
+
+
+    document.getElementById('voteForInstict').addEventListener('click', function() {
+    //  db.ref('/instinct').set(10000);
+    // db.ref('/instinct').transaction(v => v + 1);
+
+    db.ref('/instinct').transaction(function(current) {
+      return current + 1;
+    });
+    });
+
+    // auth null
+
+  </script>
+
+</body>
+</html>
